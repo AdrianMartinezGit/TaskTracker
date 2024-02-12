@@ -1,3 +1,5 @@
+import { SaveTaskToLocalStorage, getLocalStorage, RemoveTaskFromLocalStorage } from './localstorage.js'
+
 const addTaskBtn = document.getElementById('addTaskBtn');
 
 const textToDo = document.getElementById('textToDo');
@@ -16,10 +18,26 @@ const taskInfoPrioField = document.getElementById('taskInfoPrioField');
 const taskInfoDateField = document.getElementById('taskInfoDateField');
 
 const todoDiv = document.getElementById('todo-div');
+const progressDiv = document.getElementById('progress-div');
+const completedDiv = document.getElementById('completed-div');
+
+const todoCounter = document.getElementById('todoCounter');
+const progressCounter = document.getElementById('progressCounter');
+const completedCounter = document.getElementById('completedCounter'); 
+
+let todoInt = 0;
+let progressInt = 0;
+let completedInt = 0;
 
 addTaskBtn.addEventListener('click', () => {
     modal.style.display = "block";
 });
+
+const UpdateCounter = () => {
+    todoCounter.textContent = `TO-DO: ${todoInt}`;
+    progressCounter.textContent = `IN-PROGRESS: ${progressInt}`;
+    completedCounter.textContent = `COMPLETED: ${completedInt}`
+}
 
 const CreateTaskAddElement = (name = 'AAA', desc = 'BBB', priority = 'CCC', expire = 'DDD') => {
     let div = document.createElement('div');
@@ -43,6 +61,24 @@ const CreateTaskAddElement = (name = 'AAA', desc = 'BBB', priority = 'CCC', expi
     todoDiv.append(div);
 }
 
+const OnPageLoad = () => {
+    UpdateCounter();
+
+    let taskList = getLocalStorage();
+
+    todoDiv.textContent = "";
+    progressDiv.textContent = "";
+    completedDiv.textContent = "";
+
+    taskList.map(task => {
+        CreateTaskAddElement(task);
+        todoInt++;
+        UpdateCounter();
+    });
+}
+
+OnPageLoad();
+
 span.addEventListener('click', () => {
     modal.style.display = "none";
 })
@@ -58,6 +94,14 @@ bottomCloseBtn.addEventListener('click', () => {
 });
 
 bottomSaveBtn.addEventListener('click', () => {
+    CreateTaskAddElement(taskInfoNameField.value);
+    SaveTaskToLocalStorage(taskInfoNameField.value);
+    
+    taskInfoNameField.value = '';
+    taskInfoDescField.value = '';
+
+    todoInt++;
+    UpdateCounter();
+
     modal.style.display = "none";
-    CreateTaskAddElement();
 });
